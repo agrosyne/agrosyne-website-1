@@ -7,6 +7,7 @@ import {
   FileText,
   PlusCircle,
   Settings,
+  Users,
   ExternalLink,
   X,
 } from "lucide-react";
@@ -26,6 +27,11 @@ const navigation = [
     name: "New Insight",
     href: "/admin/insights/new",
     icon: PlusCircle,
+  },
+  {
+    name: "Newsletter",
+    href: "/admin/newsletter",
+    icon: Users,
   },
   {
     name: "Settings",
@@ -68,13 +74,10 @@ export default function AdminSidebar({
             : "-translate-x-full"
         }`}
       >
-
         {/* Logo / Brand */}
 
         <div className="flex h-24 items-center justify-between border-b border-white/10 px-6">
-
           <div>
-
             <p className="text-xl font-bold tracking-wide text-white">
               AGROSYNE
             </p>
@@ -82,7 +85,6 @@ export default function AdminSidebar({
             <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.3em] text-[#c89b57]">
               Admin Panel
             </p>
-
           </div>
 
           {/* Mobile Close */}
@@ -95,13 +97,11 @@ export default function AdminSidebar({
           >
             <X className="h-5 w-5" />
           </button>
-
         </div>
 
         {/* Navigation */}
 
         <nav className="flex-1 space-y-2 overflow-y-auto p-4">
-
           {navigation.map((item) => {
             const Icon = item.icon;
 
@@ -127,13 +127,11 @@ export default function AdminSidebar({
               </Link>
             );
           })}
-
         </nav>
 
         {/* View Website */}
 
         <div className="border-t border-white/10 p-4">
-
           <Link
             href="/"
             target="_blank"
@@ -144,9 +142,7 @@ export default function AdminSidebar({
 
             <span>View Website</span>
           </Link>
-
         </div>
-
       </aside>
     </>
   );
