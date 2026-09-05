@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown, ExternalLink } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 const navigation = [
@@ -17,6 +17,7 @@ const navigation = [
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [brandsOpen, setBrandsOpen] = useState(false);
   const pathname = usePathname();
 
   /*
@@ -24,6 +25,7 @@ export default function Header() {
    */
   useEffect(() => {
     setMobileMenuOpen(false);
+    setBrandsOpen(false);
   }, [pathname]);
 
   /*
@@ -92,6 +94,54 @@ export default function Header() {
               );
             })}
 
+            {/* Brands Dropdown */}
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setBrandsOpen((open) => !open)}
+                className="flex items-center gap-1.5 text-[15px] font-medium text-gray-700 transition hover:text-[#C8A45D]"
+                aria-expanded={brandsOpen}
+                aria-haspopup="menu"
+              >
+                Brands
+
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform duration-200 ${
+                    brandsOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {brandsOpen && (
+                <div
+                  className="absolute right-0 top-full mt-4 w-64 overflow-hidden rounded-xl border border-gray-200 bg-white p-2 shadow-xl"
+                  role="menu"
+                >
+                  <a
+                    href="https://www.desimanwar.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    role="menuitem"
+                    className="group flex items-center justify-between rounded-lg px-4 py-3 transition hover:bg-slate-50"
+                    onClick={() => setBrandsOpen(false)}
+                  >
+                    <div>
+                      <p className="font-semibold text-[#0B1F3A] transition group-hover:text-[#C8A45D]">
+                        Desi Manwar
+                      </p>
+
+                      <p className="mt-1 text-xs text-gray-500">
+                        Visit brand website
+                      </p>
+                    </div>
+
+                    <ExternalLink className="h-4 w-4 shrink-0 text-gray-400 transition group-hover:text-[#C8A45D]" />
+                  </a>
+                </div>
+              )}
+            </div>
+
           </nav>
 
           {/* Desktop CTA */}
@@ -156,6 +206,45 @@ export default function Header() {
                   </Link>
                 );
               })}
+
+              {/* Mobile Brands */}
+
+              <div className="mt-1">
+
+                <button
+                  type="button"
+                  onClick={() => setBrandsOpen((open) => !open)}
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-3.5 text-base font-medium text-gray-700 transition hover:bg-slate-50 hover:text-[#C8A45D]"
+                  aria-expanded={brandsOpen}
+                >
+                  <span>Brands</span>
+
+                  <ChevronDown
+                    className={`h-5 w-5 transition-transform duration-200 ${
+                      brandsOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {brandsOpen && (
+                  <div className="ml-3 mt-1 border-l-2 border-[#C8A45D]/20 pl-3">
+
+                    <a
+                      href="https://www.desimanwar.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-gray-600 transition hover:bg-slate-50 hover:text-[#C8A45D]"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span>Desi Manwar</span>
+
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+
+                  </div>
+                )}
+
+              </div>
 
               {/* Mobile CTA */}
 

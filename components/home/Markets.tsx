@@ -40,9 +40,9 @@ export default function Markets() {
   return (
     <section className="bg-white">
 
-      <div className="max-w-[1500px] mx-auto px-6 lg:px-12 py-10">
+      <div className="mx-auto max-w-[1500px] px-6 py-10 lg:px-12">
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
 
           {stats.map((item) => {
 
@@ -61,17 +61,13 @@ export default function Markets() {
                 />
 
                 <h3 className="mt-6 text-6xl font-bold text-slate-900">
-
                   {item.value}
-
                 </h3>
 
-                <div className="w-12 h-[3px] bg-[#D8A15D] rounded-full mx-auto mt-5 mb-5"></div>
+                <div className="mx-auto mb-5 mt-5 h-[3px] w-12 rounded-full bg-[#D8A15D]" />
 
-                <p className="text-slate-500 text-[15px] leading-7">
-
+                <p className="text-[15px] leading-7 text-slate-500">
                   {item.label}
-
                 </p>
 
               </div>
@@ -85,6 +81,5 @@ export default function Markets() {
       </div>
 
     </section>
-
   );
 }

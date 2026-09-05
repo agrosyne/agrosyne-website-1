@@ -14,46 +14,98 @@ import type { Insight } from "@/lib/insights";
 
 export default function AdminDashboard() {
   const [insights, setInsights] = useState<Insight[]>([]);
+  const [subscriberCount, setSubscriberCount] = useState(0);
+  const [totalViews, setTotalViews] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   /*
-   * Load all insights
+   * Load dashboard data
    */
 
   useEffect(() => {
-    async function loadInsights() {
-      try {
-        setLoading(true);
-        setError("");
+  async function loadDashboardData() {
+    try {
+      setLoading(true);
+      setError("");
 
-        const response = await fetch("/api/insights", {
+      const [
+        insightsResponse,
+        viewsResponse,
+        subscribersResponse,
+      ] = await Promise.all([
+        fetch("/api/insights", {
           cache: "no-store",
-        });
+        }),
 
-        const data = await response.json();
+        fetch("/api/insights/views", {
+          cache: "no-store",
+        }),
 
-        if (!response.ok) {
-          throw new Error(
-            data.error || "Unable to load insights."
-          );
-        }
+        fetch("/api/newsletter", {
+          cache: "no-store",
+        }),
+      ]);
 
-        setInsights(data);
-      } catch (error) {
-        console.error(
-          "Failed to load dashboard insights:",
-          error
+      const insightsData =
+        await insightsResponse.json();
+
+      const viewsData =
+        await viewsResponse.json();
+
+      const subscribersData =
+        await subscribersResponse.json();
+
+      if (!insightsResponse.ok) {
+        throw new Error(
+          insightsData.error ||
+            "Unable to load insights."
         );
-
-        setError("Unable to load insight data.");
-      } finally {
-        setLoading(false);
       }
-    }
 
-    loadInsights();
-  }, []);
+      if (!viewsResponse.ok) {
+        throw new Error(
+          viewsData.error ||
+            "Unable to load views."
+        );
+      }
+
+      if (!subscribersResponse.ok) {
+        throw new Error(
+          subscribersData.error ||
+            "Unable to load subscribers."
+        );
+      }
+
+      setInsights(insightsData);
+
+      setTotalViews(
+        typeof viewsData.totalViews === "number"
+          ? viewsData.totalViews
+          : 0
+      );
+
+      setSubscriberCount(
+        Array.isArray(subscribersData)
+          ? subscribersData.length
+          : 0
+      );
+    } catch (error) {
+      console.error(
+        "Failed to load dashboard data:",
+        error
+      );
+
+      setError(
+        "Unable to load dashboard data."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  loadDashboardData();
+}, []);
 
   /*
    * Dashboard statistics
@@ -62,7 +114,8 @@ export default function AdminDashboard() {
   const totalInsights = insights.length;
 
   const publishedInsights = insights.filter(
-    (insight) => insight.status === "published"
+    (insight) =>
+      insight.status === "published"
   ).length;
 
   /*
@@ -77,7 +130,8 @@ export default function AdminDashboard() {
   const recentInsights = useMemo(() => {
     return insights
       .filter(
-        (insight) => insight.status === "published"
+        (insight) =>
+          insight.status === "published"
       )
       .sort((a, b) => {
         const dateA = new Date(
@@ -107,7 +161,9 @@ export default function AdminDashboard() {
   const stats = [
     {
       label: "Total Insights",
-      value: loading ? "—" : String(totalInsights),
+      value: loading
+        ? "—"
+        : String(totalInsights),
       icon: FileText,
     },
     {
@@ -118,13 +174,17 @@ export default function AdminDashboard() {
       icon: TrendingUp,
     },
     {
-      label: "Total Views",
-      value: "—",
-      icon: Eye,
+    label: "Total Views",
+    value: loading
+      ? "—"
+      : String(totalViews),
+    icon: Eye,
     },
     {
       label: "Subscribers",
-      value: "—",
+      value: loading
+        ? "—"
+        : String(subscriberCount),
       icon: Users,
     },
   ];
@@ -145,8 +205,8 @@ export default function AdminDashboard() {
         </h2>
 
         <p className="mt-3 max-w-3xl text-slate-600">
-          Manage your website content, insights and business information
-          from one place.
+          Manage your website content, insights and
+          business information from one place.
         </p>
 
       </div>
@@ -164,7 +224,6 @@ export default function AdminDashboard() {
       <div className="grid min-w-0 gap-5 sm:grid-cols-2 xl:grid-cols-4">
 
         {stats.map((stat) => {
-
           const Icon = stat.icon;
 
           return (
@@ -195,7 +254,6 @@ export default function AdminDashboard() {
 
             </div>
           );
-
         })}
 
       </div>
@@ -341,6 +399,13 @@ export default function AdminDashboard() {
             </Link>
 
             <Link
+              href="/admin/newsletter"
+              className="block w-full rounded-xl border border-slate-200 px-5 py-3 text-center text-sm font-semibold text-slate-700 transition hover:border-[#c89b57] hover:text-[#c89b57]"
+            >
+              View Subscribers
+            </Link>
+
+            <Link
               href="/"
               target="_blank"
               className="block w-full rounded-xl border border-slate-200 px-5 py-3 text-center text-sm font-semibold text-slate-700 transition hover:border-[#c89b57] hover:text-[#c89b57]"
@@ -360,8 +425,8 @@ export default function AdminDashboard() {
 
         <span className="break-words">
           {loading
-            ? "Loading insight data..."
-            : `${totalInsights} total insights · ${publishedInsights} published`}
+            ? "Loading dashboard data..."
+            : `${totalInsights} total insights · ${publishedInsights} published · ${subscriberCount} subscribers`}
         </span>
 
         <span>

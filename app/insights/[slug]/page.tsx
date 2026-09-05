@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RelatedArticles from "@/components/insights/RelatedArticles";
+import ViewTracker from "@/components/insights/ViewTracker";
 
 import { posts } from "@/lib/insights";
 import type { Insight } from "@/lib/insights";
@@ -66,12 +67,14 @@ export default async function ArticlePage({ params }: Props) {
    */
 
   if (!article || article.status !== "published") {
-    notFound();
-  }
+  notFound();
+}
 
-  return (
-    <>
-      <Header />
+return (
+  <>
+    <ViewTracker slug={article.slug} />
+
+    <Header />
 
       <main className="bg-white">
 
