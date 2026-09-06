@@ -409,14 +409,8 @@ export default function Footer() {
               </li>
 
               <li>
-                <Link href="/trade-solutions">
+                <Link href="/tradesolutions">
                   Trade Solutions
-                </Link>
-              </li>
-
-              <li>
-                <Link href="/markets">
-                  Markets
                 </Link>
               </li>
 

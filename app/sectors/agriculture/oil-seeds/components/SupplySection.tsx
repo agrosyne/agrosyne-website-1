@@ -56,7 +56,7 @@ export default function SupplySection() {
         <div>
 
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-            ----- OIL SUPPLY -----
+            OIL SUPPLY
           </p>
 
           <h2 className="mt-5 text-5xl font-bold leading-tight text-slate-900">

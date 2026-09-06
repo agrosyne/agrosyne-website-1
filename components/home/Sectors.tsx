@@ -32,7 +32,7 @@ export default function Sectors() {
 
         <div className="mb-14">
           <span className="text-sm font-semibold uppercase tracking-[0.35em] text-[#D7A54A]">
-            ----- Our Expertise
+            Our Expertise
           </span>
 
           <h2 className="mt-4 text-4xl font-bold text-[#071B3A] md:text-5xl">

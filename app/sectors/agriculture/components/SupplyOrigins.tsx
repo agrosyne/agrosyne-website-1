@@ -58,7 +58,7 @@ export default function SupplyOrigins() {
         <div>
 
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-            ----- OUR GLOBAL SOURCING -----
+            OUR GLOBAL SOURCING
           </p>
 
           <h2 className="mt-5 text-5xl font-bold leading-tight text-slate-900">

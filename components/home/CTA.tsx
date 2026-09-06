@@ -28,7 +28,7 @@ export default function CTA() {
         <div className="max-w-2xl">
 
           <p className="mb-5 text-xs font-semibold uppercase tracking-[0.45em] text-[#c89b57]">
-            ----- Ready To Partner?
+            Ready To Partner?
           </p>
 
           <h2 className="mb-8 text-5xl font-bold leading-tight text-white">

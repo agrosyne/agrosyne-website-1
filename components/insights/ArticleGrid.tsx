@@ -112,7 +112,7 @@ const filteredPosts =
         <div className="mb-12">
 
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-            ----- LATEST INSIGHTS -----
+            LATEST INSIGHTS
           </p>
 
           <h2 className="mt-5 text-4xl font-bold text-slate-900">

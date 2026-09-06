@@ -77,7 +77,7 @@ export default function RelatedArticles({
         <div className="mb-14 text-center">
 
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-            ----- READ MORE -----
+            READ MORE
           </p>
 
           <h2 className="mt-5 text-5xl font-bold text-slate-900">

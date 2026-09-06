@@ -69,7 +69,7 @@ export default function Newsletter() {
         {/* Eyebrow */}
 
         <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-          ----- STAY INFORMED -----
+          STAY INFORMED
         </p>
 
         {/* Heading */}
