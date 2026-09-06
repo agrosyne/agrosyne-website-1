@@ -2,6 +2,7 @@ import React from "react";
 import type { Metadata } from "next";
 import "./globals.css";
 import { getSettings } from "@/lib/settings";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -64,7 +65,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+       <ScrollToTop />
+       {children}
+      </body>
     </html>
   );
 }
