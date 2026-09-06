@@ -22,7 +22,7 @@ export default function Hero() {
           <div>
 
             <p className="mb-7 text-xs font-semibold uppercase tracking-[0.45em] text-[#c89b57]">
-              ----- GET IN TOUCH -----
+              GET IN TOUCH
             </p>
 
             <h1 className="max-w-3xl text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">

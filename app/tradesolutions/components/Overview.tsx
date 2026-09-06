@@ -54,7 +54,7 @@ export default function Overview() {
           {/* Left Content */}
           <div>
             <p className="text-sm font-semibold tracking-[0.3em] uppercase text-amber-600 mb-5">
-              ----- GLOBAL TRADE SOLUTIONS -----
+              GLOBAL TRADE SOLUTIONS
             </p>
 
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-8">

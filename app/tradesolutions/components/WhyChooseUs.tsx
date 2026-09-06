@@ -8,7 +8,7 @@ export default function HowWeWork() {
         <div className="mx-auto max-w-3xl text-center">
 
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-            ----- HOW WE WORK -----
+            HOW WE WORK
           </p>
 
           <h2 className="mt-5 text-5xl font-bold tracking-tight text-slate-900">

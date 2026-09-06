@@ -48,7 +48,7 @@ export default function GlobalPresence() {
         <div>
 
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-            ----- GLOBAL PRESENCE
+            GLOBAL PRESENCE
           </p>
 
           <h2 className="mt-2 text-5xl font-bold leading-tight text-slate-900">

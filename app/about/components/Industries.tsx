@@ -44,7 +44,7 @@ export default function Industries() {
         <div className="mx-auto max-w-3xl text-center">
 
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-            ----- INDUSTRIES WE SERVE -----
+            INDUSTRIES WE SERVE
           </p>
 
           <h2 className="mt-5 text-5xl font-bold text-slate-900">

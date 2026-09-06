@@ -32,7 +32,7 @@ export default function Hero() {
           {/* Small Heading */}
 
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-            ----- Agricultural Commodities
+            Agricultural Commodities
           </p>
 
           {/* Main Heading */}

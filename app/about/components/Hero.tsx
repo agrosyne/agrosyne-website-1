@@ -26,7 +26,7 @@ export default function Hero() {
       <div className="relative mx-auto flex min-h-[80vh] max-w-7xl items-center px-6 py-10 lg:px-8">
         <div className="max-w-3xl">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-            ----- About Agrosyne
+            About Agrosyne
           </p>
 
           <h1 className="text-5xl font-bold leading-tight text-white md:text-6xl lg:text-7xl">

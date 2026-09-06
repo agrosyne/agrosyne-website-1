@@ -19,7 +19,7 @@ export default function Hero() {
         <div className="max-w-3xl">
 
           <p className="uppercase tracking-[0.35em] text-amber-400 text-sm font-semibold mb-1">
-            ----- Global Commodity Trading
+            Global Commodity Trading
           </p>
 
           <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">

@@ -23,7 +23,7 @@ export default function Hero() {
         <div className="max-w-3xl">
 
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-            ----- BRAZILIAN SUGAR TRADER
+            BRAZILIAN SUGAR TRADER
           </p>
 
           <h1 className="mt-6 text-5xl font-bold leading-tight text-white md:text-7xl">

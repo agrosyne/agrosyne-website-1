@@ -22,14 +22,14 @@ export default function Hero() {
         <div className="max-w-3xl">
 
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-            ----- INDUSTRIES WE SERVE
+            INDUSTRIES WE SERVE
           </p>
 
           <h1 className="mt-3 text-5xl font-bold leading-tight text-white md:text-6xl lg:text-7xl">
             Connecting Global
             <br />
             Industries Through
-            <span className="text-[#c89b57]"> Reliable Commodity Supply</span>
+            <span className="text-[#c89b57]"> Reliable Supply</span>
           </h1>
 
           <p className="mt-4 max-w-2xl text-lg leading-9 text-slate-300">

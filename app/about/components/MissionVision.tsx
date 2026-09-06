@@ -13,7 +13,7 @@ export default function MissionVision() {
         <div className="mx-auto mb-10 max-w-3xl text-center">
 
           <p className="mb-4 text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-            ----- Our Purpose -----
+            Our Purpose
           </p>
 
           <h2 className="text-4xl font-bold text-white lg:text-5xl">

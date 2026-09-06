@@ -9,7 +9,7 @@ export default function Hero() {
         <div className="mx-auto max-w-4xl text-center">
 
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-            ----- INSIGHTS -----
+            INSIGHTS
           </p>
 
           <h1 className="mt-5 text-5xl font-bold leading-tight text-slate-900 lg:text-6xl">

@@ -66,7 +66,7 @@ export default function Timeline() {
         <div className="mx-auto max-w-3xl text-center">
 
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#c89b57]">
-           ----- EXPORT EXECUTION PROCESS -----
+           EXPORT EXECUTION PROCESS
           </p>
 
           <h2 className="mt-5 text-5xl font-bold text-slate-900">

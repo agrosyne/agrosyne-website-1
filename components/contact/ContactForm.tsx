@@ -25,7 +25,7 @@ export default function ContactForm() {
           <div>
 
             <p className="text-xs font-semibold uppercase tracking-[0.4em] text-[#c89b57]">
-              ----- YOUR INQUIRY -----
+              YOUR INQUIRY
             </p>
 
             <h2 className="mt-6 text-4xl font-bold leading-tight text-[#0B1F3A] sm:text-5xl">
