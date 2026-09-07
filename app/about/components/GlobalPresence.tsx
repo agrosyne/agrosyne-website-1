@@ -64,15 +64,6 @@ export default function GlobalPresence() {
             partnerships.
           </p>
 
-          <Link
-            href="/markets"
-            className="mt-5 inline-flex items-center gap-3 rounded-xl bg-slate-900 px-7 py-4 text-white transition hover:bg-[#c89b57]"
-          >
-            Explore Markets
-
-            <ArrowRight className="h-5 w-5" />
-          </Link>
-
         </div>
 
         {/* RIGHT */}

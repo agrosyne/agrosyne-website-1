@@ -14,7 +14,7 @@ const portfolio = [
       "Global Trade",
       "Contract & Spot",
     ],
-    href: "/catalogs/EN590-Catalog.pdf",
+    href: "/contact",
   },
 
   {
@@ -28,7 +28,7 @@ const portfolio = [
       "Bulk Supply",
       "Worldwide Delivery",
     ],
-    href: "/catalogs/JetA1-Catalog.pdf",
+    href: "/contact",
   },
   {
     title: "Bitumen",
@@ -41,7 +41,7 @@ const portfolio = [
       "Bulk Export",
       "Reliable Supply",
     ],
-    href: "/catalogs/Bitumen-Catalog.pdf",
+    href: "/contact",
   },
 
   {
@@ -55,7 +55,7 @@ const portfolio = [
       "Industrial Use",
       "Global Supply",
     ],
-    href: "/catalogs/Coal-Catalog.pdf",
+    href: "/contact",
 },
 ];
 
@@ -150,7 +150,7 @@ export default function RicePortfolio() {
                   href={item.href}
                   className="mt-10 inline-flex items-center rounded-xl bg-[#c89b57] px-7 py-4 text-base font-semibold text-white transition hover:bg-[#b78946]"
                 >
-                  Explore Products
+                  Contact Us
 
                   <ArrowRight className="ml-3 h-5 w-5" />
                 </Link>

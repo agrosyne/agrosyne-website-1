@@ -14,7 +14,7 @@ const portfolio = [
       "Bulk Supply",
       "Global Trade",
     ],
-    href: "/catalogs/EN590-Catalog.pdf",
+    href: "/contact",
   },
 
   {
@@ -28,7 +28,7 @@ const portfolio = [
       "Industrial Grade",
       "Bulk Export",
     ],
-    href: "/catalogs/JetA1-Catalog.pdf",
+    href: "/contact",
   },
   {
     title: "DAP",
@@ -41,7 +41,7 @@ const portfolio = [
       "Bulk Supply",
       "Global Distribution",
     ],
-    href: "/catalogs/Bitumen-Catalog.pdf",
+    href: "/contact",
   },
 
   {
@@ -55,7 +55,7 @@ const portfolio = [
       "Bulk Supply",
       "Agricultural Grade",
     ],
-    href: "/catalogs/Coal-Catalog.pdf",
+    href: "/contact",
 },
 ];
 

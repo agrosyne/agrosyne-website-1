@@ -6,22 +6,22 @@ const sectors = [
   {
     title: "Agriculture",
     image: "/images/agriculture.jpg",
-    href: "/agriculture",
+    href: "/sectors/agriculture",
   },
   {
     title: "Oil & Gas",
     image: "/images/oil-gas.jpg",
-    href: "/oil-gas",
+    href: "/sectors/oil-gas",
   },
   {
     title: "Metals & Scrap",
     image: "/images/metals.jpg",
-    href: "/metals-scrap",
+    href: "/sectors/metals-scrap",
   },
   {
     title: "Fertilizers",
     image: "/images/fertilizer.jpg",
-    href: "/fertilizer",
+    href: "/sectors/fertilizers",
   },
 ];
 
@@ -30,7 +30,10 @@ export default function Sectors() {
     <section className="bg-white py-10">
       <div className="mx-auto max-w-7xl px-6">
 
+        {/* Section Header */}
+
         <div className="mb-14">
+
           <span className="text-sm font-semibold uppercase tracking-[0.35em] text-[#D7A54A]">
             Our Expertise
           </span>
@@ -44,7 +47,10 @@ export default function Sectors() {
             chains, connecting trusted producers with buyers across global
             markets.
           </p>
+
         </div>
+
+        {/* Sector Cards */}
 
         <div className="grid gap-8 md:grid-cols-4">
 
@@ -57,12 +63,17 @@ export default function Sectors() {
 
               <Image
                 src={sector.image}
-                alt={sector.title}
+                alt={`${sector.title} commodity trading and global sourcing by Agrosyne`}
                 fill
+                sizes="(max-width: 768px) 100vw, 25vw"
                 className="object-cover transition duration-700 group-hover:scale-110"
               />
 
+              {/* Overlay */}
+
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+
+              {/* Content */}
 
               <div className="absolute bottom-0 left-0 right-0 p-8">
 
@@ -81,6 +92,7 @@ export default function Sectors() {
           ))}
 
         </div>
+
       </div>
     </section>
   );

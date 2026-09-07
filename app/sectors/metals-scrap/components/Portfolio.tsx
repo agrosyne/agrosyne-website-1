@@ -14,7 +14,7 @@ const portfolio = [
       "Industrial Grade",
       "Bulk Supply",
     ],
-    href: "/catalogs/EN590-Catalog.pdf",
+    href: "/contact",
   },
 
   {
@@ -28,7 +28,7 @@ const portfolio = [
       "Bulk Supply",
       "Industrial Recycling",
     ],
-    href: "/catalogs/JetA1-Catalog.pdf",
+    href: "/contact",
   },
   {
     title: "UBC Scrap",
@@ -41,7 +41,7 @@ const portfolio = [
       "Bulk Export",
       "Global Supply",
     ],
-    href: "/catalogs/Bitumen-Catalog.pdf",
+    href: "/contact",
   },
 
   {
@@ -55,7 +55,7 @@ const portfolio = [
       "Bulk Cargo",
       "Industrial Supply",
     ],
-    href: "/catalogs/Coal-Catalog.pdf",
+    href: "/contact",
 },
 ];
 

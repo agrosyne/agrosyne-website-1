@@ -36,14 +36,6 @@ export default function GlobalReach() {
 
             </p>
 
-            <button className="mt-5 inline-flex items-center gap-3 rounded-xl bg-[#111827] hover:bg-black transition-all duration-300 text-white font-semibold px-8 py-4">
-
-              Explore Markets
-
-              <ArrowRight size={18} />
-
-            </button>
-
           </div>
 
           {/* MAP */}

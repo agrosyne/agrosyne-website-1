@@ -54,16 +54,9 @@ export default function Hero() {
               href="/contact"
               className="inline-flex items-center justify-center rounded-xl bg-[#c89b57] px-8 py-4 text-base font-semibold text-white transition-all duration-300 hover:bg-[#b78946]"
             >
-              Request Quote
+              Contact Us
 
               <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-
-            <Link
-              href="#solutions"
-              className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white hover:text-slate-900"
-            >
-              Explore Solutions
             </Link>
 
           </div>
