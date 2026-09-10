@@ -430,7 +430,7 @@ export default function AdminDashboard() {
         </span>
 
         <span>
-          Content is currently managed locally.
+          Content is managed through MongoDB.
         </span>
 
       </div>

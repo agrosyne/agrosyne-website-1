@@ -1,63 +1,47 @@
-import { promises as fs } from "fs";
-import path from "path";
 import { NextResponse } from "next/server";
 
-import { posts } from "@/lib/insights";
+import clientPromise from "@/lib/mongodb";
 import type { Insight } from "@/lib/insights";
 
-const dataDirectory = path.join(process.cwd(), "data");
-const dataFile = path.join(dataDirectory, "insights.json");
+const COLLECTION_NAME = "articles";
 
-async function readAdminInsights(): Promise<Insight[]> {
-  try {
-    const file = await fs.readFile(dataFile, "utf-8");
+async function getCollection() {
+  const client = await clientPromise;
 
-    return JSON.parse(file) as Insight[];
-  } catch {
-    return [];
-  }
+  const db = client.db();
+
+  return db.collection<Insight>(COLLECTION_NAME);
 }
 
-async function writeAdminInsights(insights: Insight[]) {
-  await fs.mkdir(dataDirectory, { recursive: true });
-
-  await fs.writeFile(
-    dataFile,
-    JSON.stringify(insights, null, 2),
-    "utf-8"
-  );
-}
-
-/* GET */
+/*
+ * GET
+ */
 
 export async function GET(request: Request) {
   try {
-    const adminInsights = await readAdminInsights();
-
-    const combinedInsights = [
-      ...adminInsights,
-      ...posts.filter(
-        (post) =>
-          !adminInsights.some(
-            (adminPost) => adminPost.slug === post.slug
-          )
-      ),
-    ];
+    const collection = await getCollection();
 
     const { searchParams } = new URL(request.url);
-    const publicOnly = searchParams.get("public") === "true";
 
-    if (publicOnly) {
-      return NextResponse.json(
-        combinedInsights.filter(
-          (insight) => insight.status === "published"
-        )
-      );
-    }
+    const publicOnly =
+      searchParams.get("public") === "true";
 
-    return NextResponse.json(combinedInsights);
+    const filter = publicOnly
+      ? { status: "published" as const }
+      : {};
+
+    const insights = await collection
+      .find(filter)
+      .project({ _id: 0 })
+      .sort({ publishedAt: -1 })
+      .toArray();
+
+    return NextResponse.json(insights);
   } catch (error) {
-    console.error("Failed to load insights:", error);
+    console.error(
+      "Failed to load insights:",
+      error
+    );
 
     return NextResponse.json(
       {
@@ -70,14 +54,18 @@ export async function GET(request: Request) {
   }
 }
 
-/* POST */
+/*
+ * POST
+ */
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
 
+    const collection = await getCollection();
+
     /*
-     * Duplicate an existing Admin insight
+     * Duplicate an existing insight
      */
 
     if (body.action === "duplicate") {
@@ -94,11 +82,15 @@ export async function POST(request: Request) {
         );
       }
 
-      const adminInsights = await readAdminInsights();
-
-      const sourceInsight = adminInsights.find(
-        (item) => item.id === sourceId
-      );
+      const sourceInsight =
+        await collection.findOne(
+          { id: sourceId },
+          {
+            projection: {
+              _id: 0,
+            },
+          }
+        );
 
       if (!sourceInsight) {
         return NextResponse.json(
@@ -112,24 +104,20 @@ export async function POST(request: Request) {
         );
       }
 
-      /*
-       * Generate a unique slug.
-       */
-
-      const baseSlug = `${sourceInsight.slug}-copy`;
+      const baseSlug =
+        `${sourceInsight.slug}-copy`;
 
       let newSlug = baseSlug;
       let counter = 2;
 
       while (
-        adminInsights.some(
-          (item) => item.slug === newSlug
-        ) ||
-        posts.some(
-          (post) => post.slug === newSlug
-        )
+        await collection.findOne({
+          slug: newSlug,
+        })
       ) {
-        newSlug = `${baseSlug}-${counter}`;
+        newSlug =
+          `${baseSlug}-${counter}`;
+
         counter++;
       }
 
@@ -138,7 +126,8 @@ export async function POST(request: Request) {
 
         id: crypto.randomUUID(),
 
-        title: `${sourceInsight.title} (Copy)`,
+        title:
+          `${sourceInsight.title} (Copy)`,
 
         slug: newSlug,
 
@@ -146,16 +135,12 @@ export async function POST(request: Request) {
 
         featured: false,
 
-        publishedAt: new Date().toISOString(),
+        publishedAt:
+          new Date().toISOString(),
       };
 
-      const updatedInsights = [
-        duplicatedInsight,
-        ...adminInsights,
-      ];
-
-      await writeAdminInsights(
-        updatedInsights
+      await collection.insertOne(
+        duplicatedInsight
       );
 
       return NextResponse.json(
@@ -173,12 +158,21 @@ export async function POST(request: Request) {
      * Normal Create Insight
      */
 
-    const insight: Insight = body;
+    const insight: Insight = {
+      ...body,
+      id:
+        body.id ||
+        crypto.randomUUID(),
+    };
 
-    if (!insight.title || !insight.slug) {
+    if (
+      !insight.title ||
+      !insight.slug
+    ) {
       return NextResponse.json(
         {
-          error: "Title and slug are required.",
+          error:
+            "Title and slug are required.",
         },
         {
           status: 400,
@@ -186,20 +180,20 @@ export async function POST(request: Request) {
       );
     }
 
-    const adminInsights = await readAdminInsights();
+    /*
+     * Prevent duplicate slugs.
+     */
 
-    const existingAdminInsight = adminInsights.find(
-      (item) => item.slug === insight.slug
-    );
+    const existingInsight =
+      await collection.findOne({
+        slug: insight.slug,
+      });
 
-    const existingOriginalInsight = posts.find(
-      (item) => item.slug === insight.slug
-    );
-
-    if (existingAdminInsight || existingOriginalInsight) {
+    if (existingInsight) {
       return NextResponse.json(
         {
-          error: "An insight with this slug already exists.",
+          error:
+            "An insight with this slug already exists.",
         },
         {
           status: 409,
@@ -207,9 +201,25 @@ export async function POST(request: Request) {
       );
     }
 
-    const updatedInsights = [insight, ...adminInsights];
+    /*
+     * If this article is marked as featured,
+     * remove featured status from other articles.
+     */
 
-    await writeAdminInsights(updatedInsights);
+    if (insight.featured) {
+      await collection.updateMany(
+        {
+          featured: true,
+        },
+        {
+          $set: {
+            featured: false,
+          },
+        }
+      );
+    }
+
+    await collection.insertOne(insight);
 
     return NextResponse.json(
       {
@@ -221,11 +231,15 @@ export async function POST(request: Request) {
       }
     );
   } catch (error) {
-    console.error("Failed to save insight:", error);
+    console.error(
+      "Failed to save insight:",
+      error
+    );
 
     return NextResponse.json(
       {
-        error: "Unable to save insight.",
+        error:
+          "Unable to save insight.",
       },
       {
         status: 500,
@@ -234,16 +248,20 @@ export async function POST(request: Request) {
   }
 }
 
-/* PUT */
+/*
+ * PUT
+ */
 
 export async function PUT(request: Request) {
   try {
-    const updatedInsight: Insight = await request.json();
+    const updatedInsight: Insight =
+      await request.json();
 
     if (!updatedInsight.id) {
       return NextResponse.json(
         {
-          error: "Insight ID is required.",
+          error:
+            "Insight ID is required.",
         },
         {
           status: 400,
@@ -251,10 +269,14 @@ export async function PUT(request: Request) {
       );
     }
 
-    if (!updatedInsight.title || !updatedInsight.slug) {
+    if (
+      !updatedInsight.title ||
+      !updatedInsight.slug
+    ) {
       return NextResponse.json(
         {
-          error: "Title and slug are required.",
+          error:
+            "Title and slug are required.",
         },
         {
           status: 400,
@@ -262,21 +284,23 @@ export async function PUT(request: Request) {
       );
     }
 
-    const adminInsights = await readAdminInsights();
-
-    const insightIndex = adminInsights.findIndex(
-      (item) => item.id === updatedInsight.id
-    );
+    const collection =
+      await getCollection();
 
     /*
-     * Only articles created through the Admin system
-     * can currently be edited.
+     * Find the existing article.
      */
 
-    if (insightIndex === -1) {
+    const existingInsight =
+      await collection.findOne({
+        id: updatedInsight.id,
+      });
+
+    if (!existingInsight) {
       return NextResponse.json(
         {
-          error: "Insight not found or cannot be edited.",
+          error:
+            "Insight not found or cannot be edited.",
         },
         {
           status: 404,
@@ -288,20 +312,19 @@ export async function PUT(request: Request) {
      * Prevent duplicate slugs.
      */
 
-    const duplicateSlug = adminInsights.some(
-      (item) =>
-        item.slug === updatedInsight.slug &&
-        item.id !== updatedInsight.id
-    );
+    const duplicateSlug =
+      await collection.findOne({
+        slug: updatedInsight.slug,
+        id: {
+          $ne: updatedInsight.id,
+        },
+      });
 
-    const originalSlugExists = posts.some(
-      (post) => post.slug === updatedInsight.slug
-    );
-
-    if (duplicateSlug || originalSlugExists) {
+    if (duplicateSlug) {
       return NextResponse.json(
         {
-          error: "Another insight already uses this slug.",
+          error:
+            "Another insight already uses this slug.",
         },
         {
           status: 409,
@@ -309,27 +332,68 @@ export async function PUT(request: Request) {
       );
     }
 
-    const updatedInsights = [...adminInsights];
+    /*
+     * Preserve the original publication date.
+     *
+     * Editing an article should not change
+     * when it was originally published/created.
+     */
 
-    updatedInsights[insightIndex] = updatedInsight;
+    const articleToSave: Insight = {
+      ...updatedInsight,
 
-    await writeAdminInsights(updatedInsights);
+      publishedAt:
+        existingInsight.publishedAt ||
+        updatedInsight.publishedAt,
+    };
+
+    /*
+     * If this article is being made featured,
+     * remove featured status from other articles.
+     */
+
+    if (articleToSave.featured) {
+      await collection.updateMany(
+        {
+          id: {
+            $ne: articleToSave.id,
+          },
+          featured: true,
+        },
+        {
+          $set: {
+            featured: false,
+          },
+        }
+      );
+    }
+
+    await collection.replaceOne(
+      {
+        id: articleToSave.id,
+      },
+      articleToSave
+    );
 
     return NextResponse.json(
       {
         success: true,
-        insight: updatedInsight,
+        insight: articleToSave,
       },
       {
         status: 200,
       }
     );
   } catch (error) {
-    console.error("Failed to update insight:", error);
+    console.error(
+      "Failed to update insight:",
+      error
+    );
 
     return NextResponse.json(
       {
-        error: "Unable to update insight.",
+        error:
+          "Unable to update insight.",
       },
       {
         status: 500,
@@ -338,18 +402,25 @@ export async function PUT(request: Request) {
   }
 }
 
-/* DELETE */
+/*
+ * DELETE
+ */
 
-export async function DELETE(request: Request) {
+export async function DELETE(
+  request: Request
+) {
   try {
-    const { searchParams } = new URL(request.url);
+    const { searchParams } =
+      new URL(request.url);
 
-    const id = searchParams.get("id");
+    const id =
+      searchParams.get("id");
 
     if (!id) {
       return NextResponse.json(
         {
-          error: "Insight ID is required.",
+          error:
+            "Insight ID is required.",
         },
         {
           status: 400,
@@ -357,13 +428,15 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const adminInsights = await readAdminInsights();
+    const collection =
+      await getCollection();
 
-    const insightToDelete = adminInsights.find(
-      (item) => item.id === id
-    );
+    const result =
+      await collection.deleteOne({
+        id,
+      });
 
-    if (!insightToDelete) {
+    if (result.deletedCount === 0) {
       return NextResponse.json(
         {
           error:
@@ -375,16 +448,11 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const updatedInsights = adminInsights.filter(
-      (item) => item.id !== id
-    );
-
-    await writeAdminInsights(updatedInsights);
-
     return NextResponse.json(
       {
         success: true,
-        message: "Insight deleted successfully.",
+        message:
+          "Insight deleted successfully.",
       },
       {
         status: 200,
@@ -398,7 +466,8 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json(
       {
-        error: "Unable to delete insight.",
+        error:
+          "Unable to delete insight.",
       },
       {
         status: 500,

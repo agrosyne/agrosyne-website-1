@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { posts as staticPosts } from "@/lib/insights";
 
 interface InsightPost {
   id: string;
@@ -19,63 +18,79 @@ interface InsightPost {
 }
 
 export default function Insights() {
-  /*
-   * IMPORTANT:
-   * Start with the same data on both server and client.
-   * This prevents React hydration mismatch.
-   */
-  const [latestPosts, setLatestPosts] = useState<InsightPost[]>(
-    staticPosts.slice(0, 3)
-  );
+  const [latestPosts, setLatestPosts] = useState<InsightPost[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
 
     const loadInsights = async () => {
       try {
-        const response = await fetch("/api/insights", {
-          cache: "no-store",
-        });
+        const response = await fetch(
+          "/api/insights?public=true",
+          {
+            cache: "no-store",
+          }
+        );
 
         if (!response.ok) {
-          return;
+          throw new Error(
+            "Unable to load insights."
+          );
         }
 
         const data = await response.json();
 
-        /*
-         * Support either:
-         * { posts: [...] }
-         * or directly [...]
-         */
         const apiPosts: InsightPost[] = Array.isArray(data)
           ? data
           : Array.isArray(data.posts)
             ? data.posts
             : [];
 
-        if (cancelled || apiPosts.length === 0) {
+        if (cancelled) {
           return;
         }
 
         /*
-         * Only show published insights on the public website.
+         * The API already returns only published
+         * articles when public=true is used.
+         *
+         * We still filter here as an additional
+         * safety check.
          */
+
         const publishedPosts = apiPosts
-          .filter((post) => post.status === "published")
+          .filter(
+            (post) =>
+              post.status === "published"
+          )
           .sort((a, b) => {
-            const dateA = new Date(a.publishedAt || 0).getTime();
-            const dateB = new Date(b.publishedAt || 0).getTime();
+            const dateA = new Date(
+              a.publishedAt || 0
+            ).getTime();
+
+            const dateB = new Date(
+              b.publishedAt || 0
+            ).getTime();
 
             return dateB - dateA;
           })
           .slice(0, 3);
 
-        if (!cancelled && publishedPosts.length > 0) {
-          setLatestPosts(publishedPosts);
-        }
+        setLatestPosts(publishedPosts);
       } catch (error) {
-        console.error("Unable to load insights:", error);
+        console.error(
+          "Unable to load insights:",
+          error
+        );
+
+        if (!cancelled) {
+          setLatestPosts([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
@@ -120,85 +135,151 @@ export default function Insights() {
 
         </div>
 
-        {/* Latest Insights */}
+        {/* Loading */}
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        {loading ? (
 
-          {latestPosts.map((post) => (
+          <div className="grid gap-8 lg:grid-cols-3">
 
-            <article
-              key={post.id}
-              className="group overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
-            >
+            {Array.from(
+              { length: 3 },
+              (_, index) => (
+                <div
+                  key={index}
+                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white"
+                >
 
-              {/* Image */}
+                  <div className="h-64 animate-pulse bg-slate-100" />
 
-              <Link href={`/insights/${post.slug}`}>
+                  <div className="space-y-5 p-8">
 
-                <div className="relative h-64 overflow-hidden">
+                    <div className="h-4 w-40 animate-pulse rounded bg-slate-100" />
 
-                  <Image
-                    src={post.image || "/images/placeholder.jpg"}
-                    alt={post.title}
-                    fill
-                    className="object-cover transition duration-700 group-hover:scale-105"
-                  />
+                    <div className="h-10 w-full animate-pulse rounded bg-slate-100" />
+
+                    <div className="h-20 w-full animate-pulse rounded bg-slate-100" />
+
+                  </div>
 
                 </div>
+              )
+            )}
 
-              </Link>
+          </div>
 
-              {/* Content */}
+        ) : latestPosts.length > 0 ? (
 
-              <div className="flex h-[430px] flex-col p-8">
+          /* Latest Insights */
 
-                {/* Category */}
+          <div className="grid gap-8 lg:grid-cols-3">
 
-                <p className="mb-5 text-xs font-semibold uppercase tracking-[0.35em] text-[#b88a44]">
-                  {post.category}
-                </p>
+            {latestPosts.map((post) => (
 
-                {/* Title */}
+              <article
+                key={post.id}
+                className="group overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+              >
 
-                <Link href={`/insights/${post.slug}`}>
+                {/* Image */}
 
-                  <h3 className="mb-5 text-3xl font-bold leading-tight text-[#0f172a] transition group-hover:text-[#b88a44]">
-                    {post.title}
-                  </h3>
+                <Link
+                  href={`/insights/${post.slug}`}
+                >
+
+                  <div className="relative h-64 overflow-hidden">
+
+                    {post.image ? (
+                      <Image
+                        src={post.image}
+                        alt={post.title}
+                        fill
+                        className="object-cover transition duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center bg-slate-100">
+                        <span className="text-sm font-medium text-slate-400">
+                          Agrosyne Insights
+                        </span>
+                      </div>
+                    )}
+
+                  </div>
 
                 </Link>
 
-                {/* Excerpt */}
+                {/* Content */}
 
-                <p className="mb-10 text-base leading-8 text-slate-600">
-                  {post.excerpt}
-                </p>
+                <div className="flex h-[430px] flex-col p-8">
 
-                {/* Bottom */}
+                  {/* Category */}
 
-                <div className="mt-auto flex items-center justify-between border-t border-slate-200 pt-6">
+                  <p className="mb-5 text-xs font-semibold uppercase tracking-[0.35em] text-[#b88a44]">
+                    {post.category}
+                  </p>
 
-                  <span className="text-sm text-slate-500">
-                    {post.readTime}
-                  </span>
+                  {/* Title */}
 
                   <Link
                     href={`/insights/${post.slug}`}
-                    className="flex items-center gap-2 text-base font-semibold text-[#0f172a] transition hover:text-[#b88a44]"
                   >
-                    Read Article
-                    <ArrowRight className="h-5 w-5" />
+
+                    <h3 className="mb-5 text-3xl font-bold leading-tight text-[#0f172a] transition group-hover:text-[#b88a44]">
+                      {post.title}
+                    </h3>
+
                   </Link>
+
+                  {/* Excerpt */}
+
+                  <p className="mb-10 text-base leading-8 text-slate-600">
+                    {post.excerpt}
+                  </p>
+
+                  {/* Bottom */}
+
+                  <div className="mt-auto flex items-center justify-between border-t border-slate-200 pt-6">
+
+                    <span className="text-sm text-slate-500">
+                      {post.readTime}
+                    </span>
+
+                    <Link
+                      href={`/insights/${post.slug}`}
+                      className="flex items-center gap-2 text-base font-semibold text-[#0f172a] transition hover:text-[#b88a44]"
+                    >
+                      Read Article
+                      <ArrowRight className="h-5 w-5" />
+                    </Link>
+
+                  </div>
 
                 </div>
 
-              </div>
+              </article>
 
-            </article>
+            ))}
 
-          ))}
+          </div>
 
-        </div>
+        ) : (
+
+          /* Empty State */
+
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-6 py-16 text-center">
+
+            <h3 className="text-xl font-bold text-slate-900">
+              Insights Coming Soon
+            </h3>
+
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-500">
+              We are preparing market intelligence,
+              trade analysis and global commodity
+              insights for our readers.
+            </p>
+
+          </div>
+
+        )}
 
         {/* Mobile View All */}
 

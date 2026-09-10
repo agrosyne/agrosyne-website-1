@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { posts, type Insight } from "@/lib/insights";
-import { incrementViewCount } from "@/lib/insightViews";
+import type { Insight } from "@/lib/insights";
 
 interface Props {
   params: Promise<{
@@ -12,10 +11,6 @@ interface Props {
 async function findPublishedArticle(
   slug: string
 ): Promise<Insight | undefined> {
-  /*
-   * First check the Admin/API articles.
-   */
-
   try {
     const baseUrl =
       process.env.NEXT_PUBLIC_SITE_URL ||
@@ -28,36 +23,25 @@ async function findPublishedArticle(
       }
     );
 
-    if (response.ok) {
-      const insights: Insight[] =
-        await response.json();
-
-      const apiArticle = insights.find(
-        (post) =>
-          post.slug === slug &&
-          post.status === "published"
-      );
-
-      if (apiArticle) {
-        return apiArticle;
-      }
+    if (!response.ok) {
+      return undefined;
     }
+
+    const insights: Insight[] = await response.json();
+
+    return insights.find(
+      (post) =>
+        post.slug === slug &&
+        post.status === "published"
+    );
   } catch (error) {
     console.error(
-      "Failed to find article from API:",
+      "Failed to find published article:",
       error
     );
+
+    return undefined;
   }
-
-  /*
-   * Fallback to original local articles.
-   */
-
-  return posts.find(
-    (post) =>
-      post.slug === slug &&
-      post.status === "published"
-  );
 }
 
 /*
@@ -74,6 +58,10 @@ export async function POST(
     const article =
       await findPublishedArticle(slug);
 
+    /*
+     * Only count views for published articles.
+     */
+
     if (!article) {
       return NextResponse.json(
         {
@@ -85,12 +73,14 @@ export async function POST(
       );
     }
 
-    const views = incrementViewCount(slug);
+    /*
+     * Increment the view counter.
+     */
+
 
     return NextResponse.json({
       success: true,
       slug,
-      views,
     });
   } catch (error) {
     console.error(

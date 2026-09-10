@@ -288,7 +288,7 @@ const deleteInsight = async (id: string) => {
 
       {/* Results */}
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-visible rounded-2xl border border-slate-200 bg-white shadow-sm">
 
         {/* Table Header */}
 
@@ -602,7 +602,7 @@ const deleteInsight = async (id: string) => {
 </span>
 
         <span>
-          Content is currently managed locally.
+          Content is managed through MongoDB.
         </span>
 
       </div>

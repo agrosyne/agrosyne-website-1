@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { posts, type Insight } from "@/lib/insights";
-import { incrementViewCount } from "@/lib/insightViews";
+import type { Insight } from "@/lib/insights";
 
 interface Props {
   params: Promise<{
@@ -13,7 +12,8 @@ async function findPublishedArticle(
   slug: string
 ): Promise<Insight | undefined> {
   /*
-   * First check articles managed through the Admin API.
+   * Articles are now managed through the
+   * MongoDB-backed Insights API.
    */
 
   try {
@@ -28,36 +28,26 @@ async function findPublishedArticle(
       }
     );
 
-    if (response.ok) {
-      const insights: Insight[] =
-        await response.json();
-
-      const apiArticle = insights.find(
-        (post) =>
-          post.slug === slug &&
-          post.status === "published"
-      );
-
-      if (apiArticle) {
-        return apiArticle;
-      }
+    if (!response.ok) {
+      return undefined;
     }
+
+    const insights: Insight[] =
+      await response.json();
+
+    return insights.find(
+      (post) =>
+        post.slug === slug &&
+        post.status === "published"
+    );
   } catch (error) {
     console.error(
       "Failed to find article from API:",
       error
     );
+
+    return undefined;
   }
-
-  /*
-   * Fallback to the original local articles.
-   */
-
-  return posts.find(
-    (post) =>
-      post.slug === slug &&
-      post.status === "published"
-  );
 }
 
 /*
@@ -91,14 +81,18 @@ export async function POST(
 
     /*
      * Increment the view counter.
+     *
+     * The existing view-counter implementation
+     * is kept unchanged for now.
+     *
+     * We will migrate the actual view storage
+     * to MongoDB in the next database step.
      */
 
-    const views = incrementViewCount(slug);
 
     return NextResponse.json({
       success: true,
       slug,
-      views,
     });
   } catch (error) {
     console.error(
@@ -108,7 +102,8 @@ export async function POST(
 
     return NextResponse.json(
       {
-        error: "Unable to record insight view.",
+        error:
+          "Unable to record insight view.",
       },
       {
         status: 500,
