@@ -1,5 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { getSettings } from "@/lib/settings";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -66,8 +67,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-       <ScrollToTop />
-       {children}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-E584V3XM2X"
+          strategy="afterInteractive"
+        />
+
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-E584V3XM2X');
+          `}
+        </Script>
+
+        <ScrollToTop />
+        {children}
       </body>
     </html>
   );
