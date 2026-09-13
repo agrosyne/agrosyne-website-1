@@ -1,10 +1,9 @@
+import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
 
 export const runtime = "nodejs";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_FILE_SIZE = 4.5 * 1024 * 1024;
 
 const ALLOWED_TYPES: Record<string, string> = {
   "image/jpeg": ".jpg",
@@ -43,7 +42,7 @@ export async function POST(request: Request) {
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         {
-          error: "Image must be smaller than 5 MB.",
+          error: "Image must be smaller than 4.5 MB.",
         },
         {
           status: 400,
@@ -59,38 +58,19 @@ export async function POST(request: Request) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
 
-    const safeName =
-      originalName || "insight-image";
+    const safeName = originalName || "insight-image";
 
-    const filename = `${safeName}-${Date.now()}${extension}`;
+    const filename = `insights/${safeName}-${Date.now()}${extension}`;
 
-    const uploadDirectory = path.join(
-      process.cwd(),
-      "public",
-      "images",
-      "insights"
-    );
-
-    await mkdir(uploadDirectory, {
-      recursive: true,
+    const blob = await put(filename, file, {
+      access: "public",
+      contentType: file.type,
     });
-
-    const filePath = path.join(
-      uploadDirectory,
-      filename
-    );
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    await writeFile(filePath, buffer);
-
-    const imageUrl = `/images/insights/${filename}`;
 
     return NextResponse.json({
       success: true,
-      url: imageUrl,
-      filename,
+      url: blob.url,
+      filename: blob.pathname,
     });
   } catch (error) {
     console.error("Insight image upload failed:", error);

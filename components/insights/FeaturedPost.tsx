@@ -118,7 +118,11 @@ export default function FeaturedPost() {
             {featuredPost.image ? (
               <Image
                 src={featuredPost.image}
-                alt={featuredPost.title}
+                alt={
+  featuredPost.imageAlt ||
+  featuredPost.title ||
+  "Agrosyne Global Commodity insight"
+}
                 width={1200}
                 height={750}
                 priority

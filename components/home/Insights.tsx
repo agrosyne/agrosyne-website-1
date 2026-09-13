@@ -11,6 +11,7 @@ interface InsightPost {
   slug: string;
   excerpt: string;
   image: string;
+  imageAlt: string;
   category: string;
   readTime: string;
   status?: string;
@@ -191,7 +192,11 @@ export default function Insights() {
                     {post.image ? (
                       <Image
                         src={post.image}
-                        alt={post.title}
+                        alt={
+  post.imageAlt ||
+  post.title ||
+  "Agrosyne Global Commodity insight"
+}
                         fill
                         className="object-cover transition duration-700 group-hover:scale-105"
                       />

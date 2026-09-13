@@ -16,6 +16,7 @@ export type InsightContentBlock =
 
 export interface Insight {
   id: string;
+
   title: string;
   slug: string;
   excerpt: string;
@@ -23,6 +24,8 @@ export interface Insight {
   content: InsightContentBlock[] | string;
 
   image: string;
+  imageAlt: string;
+
   category: string;
   author: string;
   publishedAt: string;

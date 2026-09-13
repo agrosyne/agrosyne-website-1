@@ -38,6 +38,7 @@ export default function EditInsightPage({ params }: Props) {
   const [readTime, setReadTime] = useState("");
 
   const [image, setImage] = useState("");
+  const [imageAlt, setImageAlt] = useState("");
   const [imagePreview, setImagePreview] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
 
@@ -124,7 +125,8 @@ export default function EditInsightPage({ params }: Props) {
         setAuthor(article.author || "Agrosyne");
         setReadTime(article.readTime || "");
 
-        setImage(article.image || "");
+          setImage(article.image || "");
+        setImageAlt(article.imageAlt || "");
         setImagePreview(article.image || "");
 
         setFeatured(Boolean(article.featured));
@@ -178,8 +180,8 @@ export default function EditInsightPage({ params }: Props) {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Image must be smaller than 5 MB.");
+    if (file.size > 4.5 * 1024 * 1024) {
+      alert("Image must be smaller than 4.5 MB.");
       event.target.value = "";
       return;
     }
@@ -251,6 +253,9 @@ export default function EditInsightPage({ params }: Props) {
       content: content.trim(),
 
       image,
+
+      imageAlt:
+        imageAlt.trim(),
 
       category,
       author: author.trim(),
@@ -757,7 +762,7 @@ export default function EditInsightPage({ params }: Props) {
                     </p>
 
                     <p className="mt-1 text-xs text-slate-400">
-                      JPG, PNG or WEBP · Max 5 MB
+                      JPG, PNG or WEBP · Max 4.5 MB
                     </p>
 
                     <span className="mt-4 inline-flex rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-[#0B1F3A]">
@@ -777,6 +782,30 @@ export default function EditInsightPage({ params }: Props) {
                 </label>
 
               )}
+
+            </div>
+
+            {/* Image Alt Text */}
+
+            <div className="mt-6">
+
+              <label className="mb-2 block text-sm font-semibold text-[#0B1F3A]">
+                Image Alt Text
+              </label>
+
+              <p className="mb-3 text-xs leading-5 text-slate-500">
+                Describe the image for accessibility and search engines.
+              </p>
+
+              <input
+                type="text"
+                value={imageAlt}
+                onChange={(e) =>
+                  setImageAlt(e.target.value)
+                }
+                placeholder="Describe what the image shows"
+                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-[#c89b57]"
+              />
 
             </div>
 

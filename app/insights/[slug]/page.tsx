@@ -20,6 +20,7 @@ interface Insight {
   excerpt: string;
   content: InsightContentBlock[] | string;
   image: string;
+  imageAlt: string;
   category: string;
   author: string;
   publishedAt: string;
@@ -156,12 +157,16 @@ export default async function ArticlePage({
 
             {article.image ? (
               <Image
-                src={article.image}
-                alt={article.title}
-                width={1600}
-                height={900}
-                priority
-                className="h-full w-full object-cover"
+               src={article.image}
+               alt={
+                 article.imageAlt ||
+                 article.title ||
+                 "Agrosyne Global Commodity insight"
+                   }
+               width={1600}
+               height={900}
+               priority
+               className="h-full w-full object-cover"
               />
             ) : (
               <div className="flex h-full items-center justify-center bg-slate-100">

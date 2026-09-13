@@ -171,7 +171,11 @@ const filteredPosts =
                   {post.image ? (
                     <Image
                       src={post.image}
-                      alt={post.title}
+                      alt={
+  post.imageAlt ||
+  post.title ||
+  "Agrosyne Global Commodity insight"
+}
                       fill
                       className="object-cover transition duration-700 group-hover:scale-105"
                     />

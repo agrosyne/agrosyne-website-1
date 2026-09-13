@@ -31,14 +31,9 @@ export default function AdminDashboard() {
 
       const [
         insightsResponse,
-        viewsResponse,
         subscribersResponse,
       ] = await Promise.all([
         fetch("/api/insights", {
-          cache: "no-store",
-        }),
-
-        fetch("/api/insights/views", {
           cache: "no-store",
         }),
 
@@ -50,9 +45,6 @@ export default function AdminDashboard() {
       const insightsData =
         await insightsResponse.json();
 
-      const viewsData =
-        await viewsResponse.json();
-
       const subscribersData =
         await subscribersResponse.json();
 
@@ -60,13 +52,6 @@ export default function AdminDashboard() {
         throw new Error(
           insightsData.error ||
             "Unable to load insights."
-        );
-      }
-
-      if (!viewsResponse.ok) {
-        throw new Error(
-          viewsData.error ||
-            "Unable to load views."
         );
       }
 
@@ -79,11 +64,7 @@ export default function AdminDashboard() {
 
       setInsights(insightsData);
 
-      setTotalViews(
-        typeof viewsData.totalViews === "number"
-          ? viewsData.totalViews
-          : 0
-      );
+      setTotalViews(0);
 
       setSubscriberCount(
         Array.isArray(subscribersData)
