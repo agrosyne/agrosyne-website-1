@@ -134,7 +134,14 @@ export default async function ArticlePage({
               <span>•</span>
 
               <span>
-                {article.publishedAt}
+                {new Date(article.publishedAt).toLocaleDateString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  )}
               </span>
 
               <span>•</span>
@@ -255,11 +262,112 @@ export default async function ArticlePage({
                   }
                 )
 
-              ) : (
+               ) : (
 
-                <p className="text-lg leading-9 text-slate-700">
-                  {article.content}
-                </p>
+                <div className="space-y-8">
+
+                  {article.content
+                    .split(/\n\s*\n/)
+                    .map((block, index) => {
+
+                      const lines =
+                        block
+                          .split("\n")
+                          .map((line) => line.trim())
+                          .filter(Boolean);
+
+                      if (!lines.length) {
+                        return null;
+                      }
+
+                      /*
+                       * Heading 2
+                       */
+
+                      if (
+                        lines.length === 1 &&
+                        lines[0].startsWith("## ")
+                      ) {
+                        return (
+                          <h2
+                            key={index}
+                            className="pt-4 text-3xl font-bold leading-tight text-slate-900"
+                          >
+                            {lines[0].replace(
+                              /^## /,
+                              ""
+                            )}
+                          </h2>
+                        );
+                      }
+
+                      /*
+                       * Heading 3
+                       */
+
+                      if (
+                        lines.length === 1 &&
+                        lines[0].startsWith("### ")
+                      ) {
+                        return (
+                          <h3
+                            key={index}
+                            className="pt-2 text-2xl font-bold leading-tight text-slate-900"
+                          >
+                            {lines[0].replace(
+                              /^### /,
+                              ""
+                            )}
+                          </h3>
+                        );
+                      }
+
+                      /*
+                       * Bullet list
+                       */
+
+                      if (
+                        lines.every((line) =>
+                          line.startsWith("- ")
+                        )
+                      ) {
+                        return (
+                          <ul
+                            key={index}
+                            className="list-disc space-y-3 pl-7 text-lg leading-8 text-slate-700"
+                          >
+                            {lines.map(
+                              (line, itemIndex) => (
+                                <li
+                                  key={`${index}-${itemIndex}`}
+                                >
+                                  {line.replace(
+                                    /^- /,
+                                    ""
+                                  )}
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        );
+                      }
+
+                      /*
+                       * Normal paragraph
+                       */
+
+                      return (
+                        <p
+                          key={index}
+                          className="text-lg leading-9 text-slate-700"
+                        >
+                          {lines.join(" ")}
+                        </p>
+                      );
+
+                    })}
+
+                </div>
 
               )}
 
