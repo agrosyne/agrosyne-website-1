@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
 import clientPromise from "@/lib/mongodb";
@@ -19,12 +20,32 @@ async function getCollection() {
 
 export async function GET(request: Request) {
   try {
-    const collection = await getCollection();
-
     const { searchParams } = new URL(request.url);
 
     const publicOnly =
       searchParams.get("public") === "true";
+
+    /*
+     * Public article listing is allowed.
+     * Admin/private article listing requires authentication.
+     */
+
+    if (!publicOnly) {
+      const session = await auth();
+
+      if (!session?.user) {
+        return NextResponse.json(
+          {
+            error: "Unauthorized.",
+          },
+          {
+            status: 401,
+          }
+        );
+      }
+    }
+
+    const collection = await getCollection();
 
     const filter = publicOnly
       ? { status: "published" as const }
@@ -59,6 +80,19 @@ export async function GET(request: Request) {
  */
 
 export async function POST(request: Request) {
+  const session = await auth();
+
+  if (!session?.user) {
+    return NextResponse.json(
+      {
+        error: "Unauthorized.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
   try {
     const body = await request.json();
 
@@ -253,6 +287,19 @@ export async function POST(request: Request) {
  */
 
 export async function PUT(request: Request) {
+  const session = await auth();
+
+  if (!session?.user) {
+    return NextResponse.json(
+      {
+        error: "Unauthorized.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
   try {
     const updatedInsight: Insight =
       await request.json();
@@ -409,6 +456,19 @@ export async function PUT(request: Request) {
 export async function DELETE(
   request: Request
 ) {
+  const session = await auth();
+
+  if (!session?.user) {
+    return NextResponse.json(
+      {
+        error: "Unauthorized.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
   try {
     const { searchParams } =
       new URL(request.url);

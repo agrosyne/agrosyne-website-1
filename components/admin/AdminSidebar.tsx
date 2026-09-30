@@ -7,6 +7,7 @@ import {
   FileText,
   PlusCircle,
   Settings,
+  MessageSquare,
   Users,
   ExternalLink,
   X,
@@ -28,6 +29,11 @@ const navigation = [
     href: "/admin/insights/new",
     icon: PlusCircle,
   },
+  {
+  name: "Inquiries",
+  href: "/admin/inquiries",
+  icon: MessageSquare,
+},
   {
     name: "Newsletter",
     href: "/admin/newsletter",

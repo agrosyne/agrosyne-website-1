@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 
@@ -12,9 +13,21 @@ const ALLOWED_TYPES: Record<string, string> = {
 };
 
 export async function POST(request: Request) {
+  const session = await auth();
+
+  if (!session?.user) {
+    return NextResponse.json(
+      {
+        error: "Unauthorized.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
   try {
     const formData = await request.formData();
-
     const file = formData.get("file");
 
     if (!(file instanceof File)) {
@@ -73,7 +86,10 @@ export async function POST(request: Request) {
       filename: blob.pathname,
     });
   } catch (error) {
-    console.error("Insight image upload failed:", error);
+    console.error(
+      "Insight image upload failed:",
+      error
+    );
 
     return NextResponse.json(
       {

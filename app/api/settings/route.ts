@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import {
   getSettings,
@@ -7,10 +8,26 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const session = await auth();
+
+  if (!session?.user) {
+    return NextResponse.json(
+      {
+        error: "Unauthorized.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
   try {
     return NextResponse.json(getSettings());
   } catch (error) {
-    console.error("Failed to load settings:", error);
+    console.error(
+      "Failed to load settings:",
+      error
+    );
 
     return NextResponse.json(
       {
@@ -24,6 +41,19 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+  const session = await auth();
+
+  if (!session?.user) {
+    return NextResponse.json(
+      {
+        error: "Unauthorized.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
   try {
     const body = await request.json();
 
@@ -103,7 +133,10 @@ export async function PUT(request: Request) {
 
     return NextResponse.json(updatedSettings);
   } catch (error) {
-    console.error("Failed to save settings:", error);
+    console.error(
+      "Failed to save settings:",
+      error
+    );
 
     return NextResponse.json(
       {

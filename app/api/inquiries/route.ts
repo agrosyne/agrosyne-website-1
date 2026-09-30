@@ -2,15 +2,9 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
 import {
-  getSubscribers,
-  addSubscriber,
-} from "@/lib/newsletter";
-
-/*
- * GET SUBSCRIBERS
- *
- * Used by the admin newsletter page.
- */
+  createInquiry,
+  getInquiries,
+} from "@/lib/inquiries";
 
 export async function GET() {
   const session = await auth();
@@ -27,19 +21,18 @@ export async function GET() {
   }
 
   try {
-    const subscribers = getSubscribers();
+    const inquiries = await getInquiries();
 
-    return NextResponse.json(subscribers);
+    return NextResponse.json(inquiries);
   } catch (error) {
     console.error(
-      "Failed to load newsletter subscribers:",
+      "Failed to load inquiries:",
       error
     );
 
     return NextResponse.json(
       {
-        error:
-          "Unable to load newsletter subscribers.",
+        error: "Unable to load inquiries.",
       },
       {
         status: 500,
@@ -48,40 +41,51 @@ export async function GET() {
   }
 }
 
-/*
- * POST SUBSCRIBER
- *
- * Used by the website newsletter form.
- */
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-
-    const email =
-      typeof body.email === "string"
-        ? body.email.trim().toLowerCase()
-        : "";
 
     const name =
       typeof body.name === "string"
         ? body.name.trim()
         : "";
 
-    if (!email) {
+    const company =
+      typeof body.company === "string"
+        ? body.company.trim()
+        : "";
+
+    const email =
+      typeof body.email === "string"
+        ? body.email.trim().toLowerCase()
+        : "";
+
+    const phone =
+      typeof body.phone === "string"
+        ? body.phone.trim()
+        : "";
+
+    const inquiryType =
+      typeof body.inquiryType === "string"
+        ? body.inquiryType.trim()
+        : "";
+
+    const message =
+      typeof body.message === "string"
+        ? body.message.trim()
+        : "";
+
+    if (!name || !email || !message || !inquiryType) {
       return NextResponse.json(
         {
-          error: "Email address is required.",
+          error:
+            "Name, email, inquiry type and message are required.",
         },
         {
           status: 400,
         }
       );
     }
-
-    /*
-     * Basic email validation.
-     */
 
     const emailPattern =
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -89,8 +93,7 @@ export async function POST(request: Request) {
     if (!emailPattern.test(email)) {
       return NextResponse.json(
         {
-          error:
-            "Please enter a valid email address.",
+          error: "Please enter a valid email address.",
         },
         {
           status: 400,
@@ -98,16 +101,19 @@ export async function POST(request: Request) {
       );
     }
 
-    const subscriber = addSubscriber(
-      email,
+    const inquiry = await createInquiry({
       name,
-      "Insights"
-    );
+      company,
+      email,
+      phone,
+      inquiryType,
+      message,
+    });
 
     return NextResponse.json(
       {
         success: true,
-        subscriber,
+        inquiry,
       },
       {
         status: 201,
@@ -115,14 +121,14 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error(
-      "Failed to subscribe to newsletter:",
+      "Failed to create inquiry:",
       error
     );
 
     return NextResponse.json(
       {
         error:
-          "Unable to subscribe at this time.",
+          "Unable to submit your inquiry. Please try again.",
       },
       {
         status: 500,

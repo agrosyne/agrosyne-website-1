@@ -1,6 +1,12 @@
 "use client";
 
-import { Bell, UserCircle, Menu } from "lucide-react";
+import {
+  Bell,
+  UserCircle,
+  Menu,
+  LogOut,
+} from "lucide-react";
+import { signOut } from "next-auth/react";
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
@@ -9,9 +15,17 @@ interface AdminHeaderProps {
 export default function AdminHeader({
   onMenuClick,
 }: AdminHeaderProps) {
+
+  async function handleSignOut() {
+    await signOut({
+      redirect: false,
+    });
+
+    window.location.href = "/admin/login";
+  }
+
   return (
     <header className="sticky top-0 z-40 h-20 border-b border-slate-200 bg-white">
-
       <div className="flex h-full items-center justify-between px-5 sm:px-6 lg:px-8">
 
         {/* Left Side */}
@@ -32,7 +46,6 @@ export default function AdminHeader({
           {/* Page Context */}
 
           <div>
-
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#c89b57]">
               AGROSYNE
             </p>
@@ -40,9 +53,7 @@ export default function AdminHeader({
             <h1 className="mt-1 text-lg font-bold text-slate-900">
               Administration
             </h1>
-
           </div>
-
         </div>
 
         {/* Right Side */}
@@ -64,11 +75,9 @@ export default function AdminHeader({
           {/* User */}
 
           <div className="flex items-center gap-3 border-l border-slate-200 pl-3 sm:pl-5">
-
             <UserCircle className="h-9 w-9 text-slate-400" />
 
             <div className="hidden sm:block">
-
               <p className="text-sm font-semibold text-slate-900">
                 Administrator
               </p>
@@ -76,15 +85,25 @@ export default function AdminHeader({
               <p className="text-xs text-slate-500">
                 Agrosyne
               </p>
-
             </div>
-
           </div>
 
+          {/* Sign Out */}
+
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="flex h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900"
+            aria-label="Sign out"
+          >
+            <LogOut className="h-4 w-4" />
+
+            <span className="hidden sm:inline">
+              Sign out
+            </span>
+          </button>
         </div>
-
       </div>
-
     </header>
   );
 }
