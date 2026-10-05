@@ -7,89 +7,19 @@ import Footer from "@/components/layout/Footer";
 import RelatedArticles from "@/components/insights/RelatedArticles";
 import ViewTracker from "@/components/insights/ViewTracker";
 
-interface InsightContentBlock {
-  type: "paragraph" | "heading" | "list";
-  text?: string;
-  items?: string[];
-}
-
-interface Insight {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: InsightContentBlock[] | string;
-  image: string;
-  imageAlt: string;
-  category: string;
-  author: string;
-  publishedAt: string;
-  readTime: string;
-  featured: boolean;
-  status: "draft" | "published";
-
-  seoTitle?: string;
-  metaDescription?: string;
-  focusKeyword?: string;
-  canonicalUrl?: string;
-  socialTitle?: string;
-  socialDescription?: string;
-  noIndex?: boolean;
-}
-
-interface Props {
-  params: Promise<{
-    slug: string;
-  }>;
-}
-
-async function getArticle(
-  slug: string
-): Promise<Insight | undefined> {
-  try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      "http://localhost:3000";
-
-    const response = await fetch(
-      `${baseUrl}/api/insights?public=true`,
-      {
-        cache: "no-store",
-      }
-    );
-
-    if (!response.ok) {
-      console.error(
-        "Unable to load insights from API."
-      );
-
-      return undefined;
-    }
-
-    const insights: Insight[] =
-      await response.json();
-
-    return insights.find(
-      (post) =>
-        post.slug === slug &&
-        post.status === "published"
-    );
-  } catch (error) {
-    console.error(
-      "Failed to load article from API:",
-      error
-    );
-
-    return undefined;
-  }
-}
+import type { Insight } from "@/lib/insights";
+import { getPublishedInsightBySlug } from "@/lib/insights";
 
 export default async function ArticlePage({
   params,
-}: Props) {
+}: {
+  params: Promise<{
+    slug: string;
+  }>;
+}) {
   const { slug } = await params;
 
-  const article = await getArticle(slug);
+  const article = await getPublishedInsightBySlug(slug);
 
   /*
    * MongoDB/API is now the only source of
@@ -134,14 +64,16 @@ export default async function ArticlePage({
               <span>•</span>
 
               <span>
-                {new Date(article.publishedAt).toLocaleDateString(
-    "en-US",
-    {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }
-  )}
+                {new Date(
+                  article.publishedAt
+                ).toLocaleDateString(
+                  "en-US",
+                  {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  }
+                )}
               </span>
 
               <span>•</span>
@@ -164,16 +96,16 @@ export default async function ArticlePage({
 
             {article.image ? (
               <Image
-               src={article.image}
-               alt={
-                 article.imageAlt ||
-                 article.title ||
-                 "Agrosyne Global Commodity insight"
-                   }
-               width={1600}
-               height={900}
-               priority
-               className="h-full w-full object-cover"
+                src={article.image}
+                alt={
+                  article.imageAlt ||
+                  article.title ||
+                  "Agrosyne Global Commodity insight"
+                }
+                width={1600}
+                height={900}
+                priority
+                className="h-full w-full object-cover"
               />
             ) : (
               <div className="flex h-full items-center justify-center bg-slate-100">
@@ -197,21 +129,22 @@ export default async function ArticlePage({
 
             <div className="space-y-8">
 
-              {Array.isArray(
-                article.content
-              ) ? (
+              {Array.isArray(article.content) ? (
+
+                /*
+                 * Legacy structured content blocks
+                 */
 
                 article.content.map(
                   (block, index) => {
 
                     if (
-                      block.type ===
-                      "heading"
+                      block.type === "heading"
                     ) {
                       return (
                         <h2
                           key={index}
-                          className="text-3xl font-bold text-slate-900"
+                          className="pt-4 text-3xl font-bold leading-tight text-slate-900"
                         >
                           {block.text}
                         </h2>
@@ -219,8 +152,7 @@ export default async function ArticlePage({
                     }
 
                     if (
-                      block.type ===
-                      "paragraph"
+                      block.type === "paragraph"
                     ) {
                       return (
                         <p
@@ -233,8 +165,7 @@ export default async function ArticlePage({
                     }
 
                     if (
-                      block.type ===
-                        "list" &&
+                      block.type === "list" &&
                       block.items
                     ) {
                       return (
@@ -262,112 +193,212 @@ export default async function ArticlePage({
                   }
                 )
 
-               ) : (
+              ) : (
 
-                <div className="space-y-8">
+                /*
+                 * String content
+                 *
+                 * The Admin rich-text editor stores
+                 * formatted content as HTML.
+                 *
+                 * Older articles may still contain
+                 * Markdown/plain text, so those are
+                 * handled separately below.
+                 */
 
-                  {article.content
-                    .split(/\n\s*\n/)
-                    .map((block, index) => {
+                /<\/?[a-z][\s\S]*>/i.test(
+                  article.content
+                ) ? (
 
-                      const lines =
-                        block
-                          .split("\n")
-                          .map((line) => line.trim())
-                          .filter(Boolean);
+                  /*
+                   * Rich HTML content
+                   */
 
-                      if (!lines.length) {
-                        return null;
-                      }
+                  <div
+                    className="
+                      text-lg
+                      leading-9
+                      text-slate-700
 
-                      /*
-                       * Heading 2
-                       */
+                      [&_p]:mb-6
+                      [&_p:last-child]:mb-0
 
-                      if (
-                        lines.length === 1 &&
-                        lines[0].startsWith("## ")
-                      ) {
-                        return (
-                          <h2
-                            key={index}
-                            className="pt-4 text-3xl font-bold leading-tight text-slate-900"
-                          >
-                            {lines[0].replace(
-                              /^## /,
-                              ""
-                            )}
-                          </h2>
-                        );
-                      }
+                      [&_h2]:mt-10
+                      [&_h2]:mb-5
+                      [&_h2:first-child]:mt-0
+                      [&_h2]:text-3xl
+                      [&_h2]:font-bold
+                      [&_h2]:leading-tight
+                      [&_h2]:text-slate-900
 
-                      /*
-                       * Heading 3
-                       */
+                      [&_h3]:mt-8
+                      [&_h3]:mb-4
+                      [&_h3]:text-2xl
+                      [&_h3]:font-bold
+                      [&_h3]:leading-tight
+                      [&_h3]:text-slate-900
 
-                      if (
-                        lines.length === 1 &&
-                        lines[0].startsWith("### ")
-                      ) {
-                        return (
-                          <h3
-                            key={index}
-                            className="pt-2 text-2xl font-bold leading-tight text-slate-900"
-                          >
-                            {lines[0].replace(
-                              /^### /,
-                              ""
-                            )}
-                          </h3>
-                        );
-                      }
+                      [&_strong]:font-semibold
+                      [&_b]:font-semibold
 
-                      /*
-                       * Bullet list
-                       */
+                      [&_em]:italic
+                      [&_i]:italic
 
-                      if (
-                        lines.every((line) =>
-                          line.startsWith("- ")
-                        )
-                      ) {
-                        return (
-                          <ul
-                            key={index}
-                            className="list-disc space-y-3 pl-7 text-lg leading-8 text-slate-700"
-                          >
-                            {lines.map(
-                              (line, itemIndex) => (
-                                <li
-                                  key={`${index}-${itemIndex}`}
-                                >
-                                  {line.replace(
-                                    /^- /,
-                                    ""
-                                  )}
-                                </li>
+                      [&_ul]:mb-6
+                      [&_ul]:list-disc
+                      [&_ul]:space-y-3
+                      [&_ul]:pl-7
+
+                      [&_ol]:mb-6
+                      [&_ol]:list-decimal
+                      [&_ol]:space-y-3
+                      [&_ol]:pl-7
+
+                      [&_li]:pl-1
+
+                      [&_a]:font-semibold
+                      [&_a]:text-[#c89b57]
+                      [&_a]:underline
+
+                      [&_blockquote]:my-8
+                      [&_blockquote]:border-l-4
+                      [&_blockquote]:border-[#c89b57]
+                      [&_blockquote]:pl-6
+                      [&_blockquote]:italic
+                      [&_blockquote]:text-slate-600
+                    "
+                    dangerouslySetInnerHTML={{
+                      __html: article.content,
+                    }}
+                  />
+
+                ) : (
+
+                  /*
+                   * Legacy Markdown / plain-text content
+                   */
+
+                  <div className="space-y-8">
+
+                    {article.content
+                      .split(/\n\s*\n/)
+                      .map(
+                        (block, index) => {
+
+                          const lines =
+                            block
+                              .split("\n")
+                              .map(
+                                (line) =>
+                                  line.trim()
                               )
-                            )}
-                          </ul>
-                        );
-                      }
+                              .filter(Boolean);
 
-                      /*
-                       * Normal paragraph
-                       */
+                          if (!lines.length) {
+                            return null;
+                          }
 
-                      return (
-                        <p
-                          key={index}
-                          className="text-lg leading-9 text-slate-700"
-                        >
-                          {lines.join(" ")}
-                        </p>
-                      );
+                          /*
+                           * Heading 2
+                           */
 
-                    })}
+                          if (
+                            lines.length === 1 &&
+                            lines[0].startsWith(
+                              "## "
+                            )
+                          ) {
+                            return (
+                              <h2
+                                key={index}
+                                className="pt-4 text-3xl font-bold leading-tight text-slate-900"
+                              >
+                                {lines[0].replace(
+                                  /^## /,
+                                  ""
+                                )}
+                              </h2>
+                            );
+                          }
 
-                </div>
+                          /*
+                           * Heading 3
+                           */
+
+                          if (
+                            lines.length === 1 &&
+                            lines[0].startsWith(
+                              "### "
+                            )
+                          ) {
+                            return (
+                              <h3
+                                key={index}
+                                className="pt-2 text-2xl font-bold leading-tight text-slate-900"
+                              >
+                                {lines[0].replace(
+                                  /^### /,
+                                  ""
+                                )}
+                              </h3>
+                            );
+                          }
+
+                          /*
+                           * Bullet list
+                           */
+
+                          if (
+                            lines.every(
+                              (line) =>
+                                line.startsWith(
+                                  "- "
+                                )
+                            )
+                          ) {
+                            return (
+                              <ul
+                                key={index}
+                                className="list-disc space-y-3 pl-7 text-lg leading-8 text-slate-700"
+                              >
+                                {lines.map(
+                                  (
+                                    line,
+                                    itemIndex
+                                  ) => (
+                                    <li
+                                      key={`${index}-${itemIndex}`}
+                                    >
+                                      {line.replace(
+                                        /^- /,
+                                        ""
+                                      )}
+                                    </li>
+                                  )
+                                )}
+                              </ul>
+                            );
+                          }
+
+                          /*
+                           * Normal paragraph
+                           */
+
+                          return (
+                            <p
+                              key={index}
+                              className="text-lg leading-9 text-slate-700"
+                            >
+                              {lines.join(" ")}
+                            </p>
+                          );
+
+                        }
+                      )}
+
+                  </div>
+
+                )
 
               )}
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import RichTextEditor from "@/components/admin/RichTextEditor";
 import {
   ArrowLeft,
   Image as ImageIcon,
@@ -524,16 +525,10 @@ export default function NewInsightPage() {
 
             </div>
 
-            <textarea
-              placeholder="Start writing your article..."
-              value={content}
-              onChange={(e) =>
-                setContent(
-                  e.target.value
-                )
-              }
-              className="min-h-[1420px] w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-4 text-sm leading-7 outline-none transition placeholder:text-slate-400 focus:border-[#c89b57] focus:ring-2 focus:ring-[#c89b57]/10"
-            />
+            <RichTextEditor
+  value={content}
+  onChange={setContent}
+/>
 
           </section>
 

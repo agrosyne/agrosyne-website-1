@@ -4,12 +4,13 @@ import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import type { Insight } from "@/lib/insights";
 
+const DATABASE_NAME = "test";
 const COLLECTION_NAME = "articles";
 
 async function getCollection() {
   const client = await clientPromise;
 
-  const db = client.db();
+  const db = client.db(DATABASE_NAME);
 
   return db.collection<Insight>(COLLECTION_NAME);
 }

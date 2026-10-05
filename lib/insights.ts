@@ -1,3 +1,5 @@
+import clientPromise from "@/lib/mongodb";
+
 export type InsightStatus = "draft" | "published";
 
 export type InsightContentBlock =
@@ -46,4 +48,23 @@ export interface Insight {
 
   // Search engine control
   noIndex?: boolean;
+}
+
+const DATABASE_NAME = "test";
+const COLLECTION_NAME = "articles";
+
+export async function getPublishedInsightBySlug(
+  slug: string
+): Promise<Insight | undefined> {
+  const client = await clientPromise;
+  const db = client.db(DATABASE_NAME);
+
+  const article = await db
+    .collection<Insight>(COLLECTION_NAME)
+    .findOne({
+      slug,
+      status: "published",
+    });
+
+  return article ?? undefined;
 }

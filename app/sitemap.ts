@@ -3,6 +3,7 @@ import type { MetadataRoute } from "next";
 import clientPromise from "@/lib/mongodb";
 import type { Insight } from "@/lib/insights";
 
+const DATABASE_NAME = "test";
 const COLLECTION_NAME = "articles";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -137,7 +138,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const client = await clientPromise;
 
-    const db = client.db();
+    const db = client.db(DATABASE_NAME);
 
     const articles = await db
       .collection<Insight>(COLLECTION_NAME)
